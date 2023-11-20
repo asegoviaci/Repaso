@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DWEC Tarea - 1a Eval.</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		form, div {
+			padding: 10px;
+			border: 1px solid;
+			display: inline-block;
+			margin-right: 10px;
+		}
+
+		.prefijo {
+			width: 25px;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<form name="form">
+			<label for="firstName">Nombre:</label>
+			<input type="text" name="nombre">
+
+			<label for="lastName">Apellido:</label>
+			<input type="text" name="apellido">
+
+			<label for="alias">Alias:</label>
+			<input type="text" name="alias"><br><br>
+
+			<label for="alias">Email:</label>
+			<input type="text" name="email">
+
+			<label for="phoneNumber">Número de Teléfono:</label>
+			<input type="text" name="preFijo" class="prefijo" value="" disabled>
+			<input type="text" name="telefono" value="" disabled>
+			<button type="button" name="ventanaPopUp">...</button>
+			<br><br>
+
+			<label for="user">Tipo de contacto:</label>
+			<select name="user">
+				<option value="profesor">Profesor</option>
+				<option value="estudiante">Estudiante</option>
+			</select>
+			<br><br>
+
+			<button type="submit" name="enviar">Guardar Contacto</button>
+		</form>
+
+		<select name="lista_contactos">
+			<option>Contactos...</option>
+		</select>
+	</div>
+
+	<script>
+		window.onload = iniciar;
+		var contactosGuardados = [];
+		var ventana;
+		var paises = [
+				{ prefijo: '01', name: 'USA', imagen: 'flags_USA.jpg' },
+				{ prefijo: '55', name: 'Brasil', imagen: 'flags_brasil.jpg' },
+				{ prefijo: '32', name: 'Belgium', imagen: 'flags_belgium.jpg' },
+				{ prefijo: '33', name: 'France', imagen: 'flags_france.jpg' },
+				{ prefijo: '34', name: 'Spain', imagen: 'flags_spain.jpg' },
+				{ prefijo: '39', name: 'Italy', imagen: 'flags_italy.jpg' },
+				{ prefijo: '44', name: 'UK', imagen: 'flags_UK.jpg' },
+				{ prefijo: '46', name: 'Sweeden', imagen: 'flags_sweeden.jpg' },
+				{ prefijo: '49', name: 'Germany', imagen: 'flags_germany.jpg' },
+				{ prefijo: '07', name: 'Rusia', imagen: 'flags_rusia.jpg' },
+				{ prefijo: '81', name: 'Japan', imagen: 'flags_japan.jpg' },
+				{ prefijo: '86', name: 'China', imagen: 'flags_china.jpg' },
+				{ prefijo: '91', name: 'India', imagen: 'flags_india.jpg' },
+				{ prefijo: '61', name: 'Australia', imagen: 'flags_australia.jpg' },
+				{ prefijo: '64', name: 'New Zealand', imagen: 'flags_new_zealand.jpg' }
+		];
+
+		function iniciar() {
+			var popUp = document.getElementsByName("ventanaPopUp")[0];
+			popUp.addEventListener('click', mostrarBotonera);
+
+			var formulario = document.getElementsByName("form")[0];
+			formulario.addEventListener('submit', function (event) {
+				event.preventDefault();
+				if (validar()) {
+					cargaContactos();
+					alert('Formulario enviado correctamente.');
+					formulario.reset();
+				}
+			});
+
+			var guardarButton = document.getElementsByName("enviar")[0];
+			guardarButton.addEventListener('click', guardarContacto);
+		}
+
+		function mostrarBotonera() {
+			ventana = window.open('', '', 'width=400, height=300');
+			let numeros = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+			let br = document.createElement("br");
+
+			let labelPais = document.createElement('label');
+			labelPais.textContent = "País: ";
+			labelPais.for = "paisSelect";
+			ventana.document.body.appendChild(labelPais);
+
+			let select = document.createElement('select');
+			select.name = 'paisSelect';
+			paises.forEach(pais => {
+				let option = document.createElement("option");
+				option.value = pais.name;
+				option.textContent = pais.name;
+				select.appendChild(option);
+			});
+			ventana.document.body.appendChild(select);
+
+			let br1 = document.createElement("br");
+			ventana.document.body.appendChild(br1);
+
+			let bandera = document.createElement('img');
+			bandera.id = 'bandera';
+			ventana.document.body.appendChild(bandera);
+
+			let br2 = document.createElement("br");
+			ventana.document.body.appendChild(br2);
+
+			select.addEventListener('change', function () {
+				let paisSelected = this.value;
+				let prefijoSelected = getPrefijo(paisSelected);
+				cargaPaisesBandera(paisSelected);
+				mostrarPrefijo(prefijoSelected)
+			});
+
+			numeros.forEach(numero => {
+				let button = document.createElement('button');
+				button.textContent = numero;
+				button.addEventListener('click', function () {
+					let numeroSeleccionado = this.textContent;
+					ventana.opener.document.getElementsByName("telefono")[0].value += numeroSeleccionado;
+				});
+				ventana.document.body.appendChild(button);
+			});
+
+			let borrarButton = document.createElement('button');
+			borrarButton.textContent = 'Borrar';
+			borrarButton.addEventListener('click', borrarNumero);
+			ventana.document.body.appendChild(borrarButton);
+		}
+
+		function mostrarPrefijo(prefijoSelected) {
+			ventana.opener.document.getElementsByName("preFijo")[0].value = '+' + prefijoSelected;
+		}
+
+		function cargaPaisesBandera(pais)
+		{
+			// busca el nombre en el array de paises -> find()
+			var found = paises.find(p => p.name === pais);
+			if (found)
+			{
+				ventana.document.getElementById("bandera").src = "flags/" + found.imagen;
+			}
+		}
+
+		function getPrefijo(pais) {
+			// busca el nombre en el array de paises -> find()
+			let found = paises.find(p => p.name === pais);
+			if (found) {
+				return found.prefijo;
+			} else {
+				return '';
+			}
+		}
+
+		function borrarNumero() {
+			ventana.opener.document.getElementsByName("telefono")[0].value = '';
+		}
+		
+		function guardarContacto(){
+			var formulario = document.getElementsByName("form")[0];
+			var nombre = formulario.nombre.value.trim();
+			var apellido = formulario.apellido.value.trim();
+			var alias = formulario.alias.value.trim();
+			var email = formulario.email.value.trim();
+			var telefono = formulario.telefono.value.trim();
+			var tipoContacto = formulario.user.value;
+
+			var nuevoContacto = {
+				nombre: nombre,
+				apellido: apellido,
+				alias: alias,
+				email: email,
+				telefono: telefono,
+				tipoContacto: tipoContacto
+			};
+			contactosGuardados.push(nuevoContacto);
+		}
+
+		function validar() {
+			let nombre = document.getElementsByName('nombre')[0].value;
+			let apellido = document.getElementsByName('apellido')[0].value;
+			let alias = document.getElementsByName('alias')[0].value;
+			var preFijo = document.getElementsByName("preFijo")[0].value;
+			let telefono = document.getElementsByName("telefono")[0].value;
+			let email = document.getElementsByName('email')[0].value;
+
+			if (nombre === '' || apellido === '' || alias === '' || email === '' || telefono === '') {
+				alert('Formulario incompleto');
+				return false;
+			}
+
+			if (telefono.length !== 9) {
+				alert('El número de teléfono debe tener 9 dígitos');
+				return false;
+			}
+
+			if (!(email.includes("@") && email.includes("."))){
+				alert('El email está mal escrito');
+				return false;
+			}
+
+			return true;
+		}
+
+		function cargaContactos() {
+			var listaContactos = document.getElementsByName("lista_contactos")[0];
+			for (let i = 0; i < contactosGuardados.length; i++) {
+				var contacto = contactosGuardados[i];
+				var option = document.createElement("option");
+				option.value = i;
+				option.textContent = contacto.alias;
+				listaContactos.appendChild(option);
+			}
+		}
+	</script>
+</body>
+</html>
+====================================================================================
+====================================================================================
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DWEC Tarea - 1a Eval.</title>
+	<style>
+		/* Estilos ... */
+	</style>
+</head>
+<body>
+	<div>
+		<form name="form">
+			<!-- Formulario ... -->
+		</form>
+
+		<select name="lista_contactos">
+			<option>Contactos...</option>
+		</select>
+	</div>
+
+	<script>
+		window.onload = function() {
+			// Cargar el archivo JSON de países mediante AJAX
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "ruta/al/archivo.json", true);
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					// Procesar el JSON y obtener los datos de los países
+					var datosPaises = JSON.parse(xhr.responseText);
+
+					// Luego de obtener los datos de los países, puedes continuar con tu lógica original
+					iniciar(datosPaises);
+				}
+			};
+			xhr.send();
+		};
+
+		function iniciar(paises) {
+			// Resto del código ...
+		}
+		
+		// Resto del código ...
+	</script>
+</body>
+</html>
+====================================================================================
+====================================================================================
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DWEC Tarea - 1a Eval.</title>
+	<style>
+		/* Estilos ... */
+	</style>
+</head>
+<body>
+	<div>
+		<form name="form">
+			<!-- Formulario ... -->
+		</form>
+
+		<select name="lista_contactos">
+			<option>Contactos...</option>
+		</select>
+	</div>
+
+	<script>
+		window.onload = function() {
+			// Cargar el archivo XML de países mediante AJAX
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "ruta/al/archivo.xml", true);
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					// Procesar el XML y obtener los datos de los países
+					var xml = xhr.responseXML;
+					var paises = xml.getElementsByTagName("pais");
+					var datosPaises = [];
+
+					for (var i = 0; i < paises.length; i++) {
+						var prefijo = paises[i].getElementsByTagName("prefijo")[0].textContent;
+						var nombre = paises[i].getElementsByTagName("name")[0].textContent;
+						var imagen = paises[i].getElementsByTagName("imagen")[0].textContent;
+
+						datosPaises.push({ prefijo: prefijo, name: nombre, imagen: imagen });
+					}
+
+					// Luego de obtener los datos de los países, puedes continuar con tu lógica original
+					iniciar(datosPaises);
+				}
+			};
+			xhr.send();
+		};
+
+		function iniciar(paises) {
+			// Resto del código ...
+		}
+		
+		// Resto del código ...
+	</script>
+</body>
+</html>
+====================================================================================
+====================================================================================
+<paises>
+    <pais>
+        <prefijo>01</prefijo>
+        <name>USA</name>
+        <imagen>flags_USA.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>55</prefijo>
+        <name>Brasil</name>
+        <imagen>flags_brasil.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>32</prefijo>
+        <name>Belgium</name>
+        <imagen>flags_belgium.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>33</prefijo>
+        <name>France</name>
+        <imagen>flags_france.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>34</prefijo>
+        <name>Spain</name>
+        <imagen>flags_spain.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>39</prefijo>
+        <name>Italy</name>
+        <imagen>flags_italy.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>44</prefijo>
+        <name>UK</name>
+        <imagen>flags_UK.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>46</prefijo>
+        <name>Sweeden</name>
+        <imagen>flags_sweeden.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>49</prefijo>
+        <name>Germany</name>
+        <imagen>flags_germany.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>07</prefijo>
+        <name>Rusia</name>
+        <imagen>flags_rusia.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>81</prefijo>
+        <name>Japan</name>
+        <imagen>flags_japan.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>86</prefijo>
+        <name>China</name>
+        <imagen>flags_china.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>91</prefijo>
+        <name>India</name>
+        <imagen>flags_india.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>61</prefijo>
+        <name>Australia</name>
+        <imagen>flags_australia.jpg</imagen>
+    </pais>
+    <pais>
+        <prefijo>64</prefijo>
+        <name>New Zealand</name>
+        <imagen>flags_new_zealand.jpg</imagen>
+    </pais>
+</paises>
+====================================================================================
+====================================================================================
+{
+  "paises": {
+    "pais": [
+      {
+        "prefijo": "01",
+        "name": "USA",
+        "imagen": "flags_USA.jpg"
+      },
+      {
+        "prefijo": "55",
+        "name": "Brasil",
+        "imagen": "flags_brasil.jpg"
+      },
+      {
+        "prefijo": "32",
+        "name": "Belgium",
+        "imagen": "flags_belgium.jpg"
+      },
+      {
+        "prefijo": "33",
+        "name": "France",
+        "imagen": "flags_france.jpg"
+      },
+      {
+        "prefijo": "34",
+        "name": "Spain",
+        "imagen": "flags_spain.jpg"
+      },
+      {
+        "prefijo": "39",
+        "name": "Italy",
+        "imagen": "flags_italy.jpg"
+      },
+      {
+        "prefijo": "44",
+        "name": "UK",
+        "imagen": "flags_UK.jpg"
+      },
+      {
+        "prefijo": "46",
+        "name": "Sweeden",
+        "imagen": "flags_sweeden.jpg"
+      },
+      {
+        "prefijo": "49",
+        "name": "Germany",
+        "imagen": "flags_germany.jpg"
+      },
+      {
+        "prefijo": "07",
+        "name": "Rusia",
+        "imagen": "flags_rusia.jpg"
+      },
+      {
+        "prefijo": "81",
+        "name": "Japan",
+        "imagen": "flags_japan.jpg"
+      },
+      {
+        "prefijo": "86",
+        "name": "China",
+        "imagen": "flags_china.jpg"
+      },
+      {
+        "prefijo": "91",
+        "name": "India",
+        "imagen": "flags_india.jpg"
+      },
+      {
+        "prefijo": "61",
+        "name": "Australia",
+        "imagen": "flags_australia.jpg"
+      },
+      {
+        "prefijo": "64",
+        "name": "New Zealand",
+        "imagen": "flags_new_zealand.jpg"
+      }
+    ]
+  }
+}
+====================================================================================
+====================================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selección de Películas</title>
+</head>
+<body>
+    <button id="getDataButton">Obtener Datos de Películas</button>
+
+    <div>
+        <label for="directores">Selecciona un director:</label>
+        <select id="directores">
+            <!-- Opciones de directores se añadirán aquí dinámicamente -->
+        </select>
+    </div>
+
+    <div>
+        <label for="peliculas">Selecciona una película:</label>
+        <select id="peliculas">
+            <!-- Opciones de películas se añadirán aquí dinámicamente -->
+        </select>
+    </div>
+
+    <div id="sinopsisContainer">
+        <h3>Sinopsis:</h3>
+        <p id="sinopsis"></p>
+    </div>
+
+    <script>
+        document.getElementById("getDataButton").addEventListener("click", getCinephileData);
+        document.getElementById("directores").addEventListener("change", getPeliculas);
+        document.getElementById("peliculas").addEventListener("change", mostrarSinopsis);
+
+        // Registro de directores ya agregados
+        var directoresAgregados = [];
+
+        function getCinephileData() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    // Procesar la respuesta XML para obtener la lista de directores
+                    var xmlDoc = this.responseXML;
+                    var directors = xmlDoc.getElementsByTagName("Director");
+
+                    var directoresSelect = document.getElementById("directores");
+
+                    // Limpiar el select antes de agregar nuevas opciones
+                    directoresSelect.innerHTML = '<option value="">Selecciona un director</option>';
+                    
+                    // Limpiar el registro de directores agregados
+                    directoresAgregados = [];
+
+                    for (var i = 0; i < directors.length; i++) {
+                        var directorName = directors[i].textContent;
+                        
+                        // Verificar si el director ya se ha agregado
+                        if (!directoresAgregados.includes(directorName)) {
+                            var option = document.createElement("option");
+                            option.value = directorName;
+                            option.text = directorName;
+                            directoresSelect.appendChild(option);
+
+                            // Agregar el director al registro
+                            directoresAgregados.push(directorName);
+                        }
+                    }
+                }
+            };
+
+            xhr.open("GET", "peliculas.xml", true);
+            xhr.send();
+        }
+
+        function getPeliculas() {
+            var selectedDirector = document.getElementById("directores").value;
+
+            if (selectedDirector !== "") {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        // Procesar la respuesta XML para obtener la lista de películas del director seleccionado
+                        var xmlDoc = this.responseXML;
+                        var peliculas = xmlDoc.querySelectorAll("Pelicula");
+
+                        var peliculasSelect = document.getElementById("peliculas");
+                        peliculasSelect.innerHTML = '<option value="">Selecciona una pelicula</option>';
+
+                        for (var i = 0; i < peliculas.length; i++) {
+                            const director = peliculas[i].getElementsByTagName("Director")[0].textContent;
+                            const titulo = peliculas[i].getElementsByTagName("Titulo")[0].textContent;
+                            if (selectedDirector == director) {
+                                var option = document.createElement("option");
+                                option.value = titulo;
+                                option.text = titulo;
+                                peliculasSelect.appendChild(option);
+                            }
+                        }
+                    }
+                };
+
+                xhr.open("GET", "peliculas.xml", true);
+                xhr.send();
+            } else {
+                // Limpiar la sinopsis
+                document.getElementById("sinopsisContainer").style.display = "none";
+            }
+        }
+
+        function mostrarSinopsis() {
+            var selectedPelicula = document.getElementById("peliculas").value;
+
+            if (selectedPelicula !== "") {
+                // Eliminar espacios en blanco de la película seleccionada
+                var peliculaSinEspacios = selectedPelicula.replace(/\s+/g, '');
+
+                // Realizar una nueva solicitud para obtener la sinopsis de la película seleccionada
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        // Mostrar la sinopsis
+                        document.getElementById("sinopsis").textContent = this.responseText;
+                        document.getElementById("sinopsisContainer").style.display = "block";
+                    }
+                };
+
+                xhr.open("GET", "sinopsis/" + peliculaSinEspacios.toLowerCase() + ".txt", true);
+                xhr.send();
+            } else {
+                // Ocultar la sinopsis si no se selecciona ninguna película
+                document.getElementById("sinopsisContainer").style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
+====================================================================================
+====================================================================================
