@@ -1,0 +1,398 @@
+laravel new miProyecto
+cd myProject
+git init
+git add .
+git commit -m "Commit Inicial"
+------------------------------
+GET: Solicita un recurso (o una lista de recursos).
+HEAD: Solicita la versión que contiene sólo los encabezados de la respuesta
+GET.
+POST: Crear un recurso.
+PUT: Sobrescribir un recurso.
+PATCH: Modificar un recurso.
+DELETE: Borrar un recurso.
+OPTIONS: Pregunta al servidor cuáles son los verbos permitidos en esta URL.
+-------------------------------
+Route::get('/', function () {
+ return 'Hola, mundo!';
+});
+Route::post('/', function () {
+ // Handle someone sending a POST
+ // request to this route
+});
+Route::put('/', function () {
+ // Handle someone sending a PUT
+ // request to this route
+});
+Route::delete('/', function () {
+ // Handle someone sending a DELETE
+ // request to this route
+});
+Route::any('/', function () {
+ // Handle any verb request to
+ // this route
+});
+Route::match(['get', 'post'], '/',
+function () {
+ // Handle GET or POST requests to
+ // this route
+});
+------------------------------------
+Route::get('/', [TareaController::class, 'index']);
+Route::post('/tarea', [TareaController::class, 'store']);
+Route::delete('/tarea/{id}', [TareaController::class, 'destroy']);
+Route::get('/task', [TareaController::class, 'showTaskForm']);
+Route::get('/list', [TareaController::class, 'showList']);
+Route::get('/search', [TareaController::class, 'search']);
+------------------------------------
+php artisan make:controller ControladorTareas
+use App\Models\Tarea;
+------------------------------------
+@if (count($charla) === 1)
+ Hay una charla en este momento.
+@elseif (count($charla) === 0)
+ No hay ninguna charla en este momento.
+@else
+ Hay {{ count($charla) }} charlas en este momento.
+@endif
+------------------------------------
+@for ($i = 0; $i < $charla->espaciosLibres(); $i++)
+ El numero es {{ $i }}<br>
+@endfor
+@foreach ($charlas as $charla)
+ {{ $charla->titulo }} ({{ $charla->duracion }} minutos)<br>
+@endforeach
+@while ($item = array_pop($items))
+ {{ $item->oAlgo() }}<br>
+@endwhile
+------------------------------------
+<form method="POST" action="/profile">
+ @csrf
+</form>
+------------------------------------
+php artisan make:migration crear_tabla_usuarios --create=usuarios
+php artisan make:migration tabla_anadir_votos_a_usuarios --table=usuarios
+------------------------------------
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('tareas', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->timestamps();
+        });
+    }
+    public function down(): void
+    {
+        Schema::dropIfExists('tareas');
+    }
+};
+------------------------------------
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('tareas', function (Blueprint $table) {
+            $table->text('descripcion')->nullable();
+        });
+    }
+    public function down(): void
+    {
+        Schema::table('tareas', function (Blueprint $table) {
+            $table->dropColumn('descripcion');
+        });
+    }
+};
+------------------------------------
+php artisan migrate
+php artisan migrate:rollback
+php artisan migrate:reset
+php artisan migrate:refresh
+php artisan migrate:fresh
+------------------------------------
+php artisan make:seeder TablaContactosSeeder
+php artisan migrate --seed
+php artisan migrate:refresh --seed
+php artisan db:seed
+php artisan db:seed --class=TablaContactosSeeder
+------------------------------------
+class ContactsTableSeeder extends Seeder {
+ public function run() {
+  DB::table('contactos')->insert([
+   'nombre' => 'Mary Roe',
+   'email' => 'mroe@gmail.com',
+  ]);
+  DB::table('contactos')->insert([
+   'npmbre' => 'Angie Lopez',
+   'email' => 'alopez@gmail.com',
+  ]);
+ }
+}
+------------------------------------
+php artisan make:factory ContactoFactoria --model=Contacto
+Contacto::factory(40)->make();
+------------------------------------
+public function definition()
+{
+ return [
+  'nombre' => $this->faker->word();
+  'email' => $this->faker->email();
+ ];
+}
+------------------------------------
+use Illuminate\Support\Facades\DB;
+
+$usuario = DB::table('usuarios')->where('nombre', 'John')->first();
+return $usuario->email;
+
+$email = DB::table('usuarios')->where('nombre', 'John')->value('email');
+
+$usuario = DB::table('usuarios')->find(3);
+
+
+$usuarios = DB::table('usuarios')->count();
+$precio = DB::table('ordenes')->max('precio');
+
+if (DB::table('ordeenes')->where('finalzado', 1)->exists()) {
+// …
+}
+if (DB::table('ordenes')->where('finalizado', 1)->doesntExist()) {
+// …
+}
+
+$usuarios = DB::table('usuarios')
+ ->select('nombre', 'email as usuario_email')
+ ->get();
+
+$usuarios = DB::table('usuarios')->distinct()->get();
+
+$usuarios = DB::table('usuarios')
+ ->where('votos', '=', 100)
+ ->where('edad', '>', 35)
+ ->get();
+
+$usuarios = DB::table('usuarios')
+ ->where('votos', '>', 100)
+ ->orWhere('nombre', 'Jon')
+ ->get();
+------------------------------------
+php artisan make:model Vuelo
+------------------------------------
+class Tarea extends Model
+{
+    use HasFactory;
+
+    protected $table = 'tareas';
+    protected $fillable = ['nombre', 'descripcion'];
+}
+------------------------------------
+use App\Models\Vuelo:
+------------------------------------
+$vuelos = App\Models\Vuelo::where('active', 1)
+ ->orderBy('nombre', 'desc')
+ ->take(10)
+ ->get();
+------------------------------------
+$cuenta = App\Models\Vuelo::where('active', 1)->count();
+$max = App\Models\Vuelo::where('active', 1)->max('precio');
+------------------------------------
+App\Models\Vuelo::where('active', 1)
+ ->where('destino', 'San Diego')
+ ->update(['retraso' => 1]);
+------------------------------------
+$vuelo = App\Models\Vuelo::find(1);
+$vuelo->delete();
+
+App\Models\Vuelo::destroy(1, 2, 3);
+------------------------------------
+------------------------------------
+use App\Models\Tarea;
+
+class TareaController extends Controller
+{
+    public function index()
+    {
+        $tareas = Tarea::all();
+        return view('tareas.index')->with('tareas', $tareas);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string',
+            'descripcion' => 'required|string',
+        ],[
+            'nombre.required' => 'El campo nombre es obligatorio.',
+            'descripcion.required' => 'El campo descripción es obligatorio.',
+            'descripcion.string' => 'El campo descripción debe ser una cadena.',
+        ]);
+
+        Tarea::create($request->all());
+
+        return redirect('/');
+    }
+
+    public function destroy($id)
+    {
+        Tarea::destroy($id);
+
+        return redirect('/');
+    }
+
+    public function showTaskForm()
+    {
+        return view('tareas.task_form');
+    }
+
+    public function showList()
+    {
+        $tareas = Tarea::all();
+        return view('tareas.List')->with('tareas', $tareas);
+    }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('search');
+        $tareas = Tarea::where('nombre', 'like', '%' . $searchTerm . '%')->get();
+
+        return view('tareas.search')->with('tareas', $tareas);
+    }
+}
+------------------------------------
+class Tarea extends Model
+{
+    use HasFactory;
+
+    protected $table = 'tareas';
+    protected $fillable = ['nombre', 'descripcion'];
+}
+------------------------------------
+<html>
+<head>
+    <title>Lista de Tareas</title>
+    <!-- En la carpeta public/ccs tengo la parte de css -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Menu</button>
+            <div class="dropdown-content">
+                <a href="/">Inicio</a>
+                <a href="/list">Lista Tareas</a>
+                <a href="/task">Nueva Tarea</a>
+                <a href="/search">Buscar</a>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        @yield('content')
+    </div>
+</body>
+</html>
+------------------------------------
+<!-- resources/views/tareas/index.blade.php -->
+
+@extends('layout')
+
+@section('content')
+    <h1>Lista de Tareas</h1>
+
+    <!-- Formulario para crear nueva tarea -->
+    @include('partials.form')
+
+    <!-- Tabla para mostrar tareas -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @each('partials.delete_button', $tareas, 'tarea')
+        </tbody>
+    </table>
+@endsection
+------------------------------------
+@extends('layout')
+
+@section('content')
+    <h1>Lista de Tareas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @each('partials.delete_button', $tareas, 'tarea')
+        </tbody>
+    </table>
+@endsection
+------------------------------------
+@extends('layout')
+
+@section('content')
+    <h1>Nueva Tarea</h1>
+
+    @include('partials.form')
+@endsection
+------------------------------------
+<form action="/tarea" method="post">
+    @csrf
+    <label for="nombre">Nombre de la tarea:</label>
+    @error('nombre')
+        <div class="error">{{ $message }}</div>
+    @enderror
+    <input type="text" name="nombre" value="{{ old('nombre') }}">
+    <label for="descripcion">Descripción:</label>
+    @error('descripcion')
+        <div class="error">{{ $message }}</div>
+    @enderror
+    <input type="text" name="descripcion" value="{{ old('descripcion') }}">
+    <button type="submit">Agregar tarea</button>
+</form>
+------------------------------------
+@extends('layout')
+
+@section('content')
+    <h1>Lista de Tareas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @each('partials.delete_button', $tareas, 'tarea')
+        </tbody>
+    </table>
+@endsection
+------------------------------------
+<form action="/tarea/{{ $tarea->id }}" method="post">
+    @csrf
+    @method('delete')
+    <tr>
+        <td>{{ $tarea->id }}</td>
+         <td>{{ $tarea->nombre }}</td>
+        <td>{{ $tarea->descripcion }}</td>
+        <td>
+            <button type="submit" id="borrar" >Borrar</button>
+        </td>
+    </tr>
+</form>
+------------------------------------
+------------------------------------
+------------------------------------
