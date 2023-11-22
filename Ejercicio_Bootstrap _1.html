@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    </head>
+    <style>
+      body{
+        background: #DECBA4;
+        background: -webkit-linear-gradient(to left, #3E5151, #DECBA4);
+        background: linear-gradient(to left, #3E5151, #DECBA4);
+      }
+      .custom-button{
+        background: #3E5151;
+        border-color: #3E5151;
+        color: #fff;
+      }
+      .custom-button:hover{
+        background: #DECBA4;
+        border-color: #DECBA4;
+      }
+      .custom-button:active{
+        background: #DECBA4;
+        border-color: #DECBA4;
+      }
+      .p1 {
+            text-align: justify;
+      }
+      .logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      }
+      .nav-link:hover{
+        background: #789e9e;
+      }
+    </style>
+    <body>
+      <div class="container">
+        <header class="navbar">
+        <h1 class="navbar-text">ZUBIRI MANTEO</h1>
+        <img src="image/image_gallery.png" alt="Logo" class="logo">
+        </header>
+        <nav class="navbar navbar-expand-lg">
+          <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Quienes</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Cursos</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" aria-disabled="true">Situación</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" aria-disabled="true">Contacto</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <div class="container text-center">
+          <div class="row">
+            <div class="col">
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Nombre y apellido</label>
+                <input type="email" class="form-control" id="exampleFormControlInput1">
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Dejanos tu comentario</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+              <div class="d-grid gap-2">
+                <button class="btn custom-button" type="button">Enviar</button>
+                <button class="btn custom-button" type="button">Limpiar</button>
+              </div>
+            </div>
+            <div class="col text-white">
+              <h2 class="text-center">Contacta con nosotros</h2>
+              <p class="p1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vestibulum justo risus, quis ultricies neque commodo non. Cras vitae libero in dolor aliquet aliquet. Donec orci nisl, malesuada aliquet justo eu, blandit maximus nunc. Nunc accumsan ultricies ipsum at convallis. Sed lacinia elit quis erat vulputate, at scelerisque tortor tincidunt. Nullam mollis iaculis est sit amet malesuada. Aliquam erat volutpat. Morbi cursus posuere ullamcorper.</p>
+              <p class="p1">Vivamus dolor risus, varius nec arcu sed, tempus eleifend est. Nunc mattis non ipsum id sodales. Maecenas ultricies id mauris nec semper. Mauris nunc odio, tempor eu congue a, faucibus non nisl. Quisque nec turpis eget leo efficitur viverra. In volutpat sem sit amet lectus pulvinar commodo. Nam lacinia molestie diam id pretium. Quisque euismod fringilla efficitur. Vivamus quis arcu non eros imperdiet faucibus.</p>
+          </div>
+          </div>
+        </div>
+        <div class="col text-white">
+          <h2 class="text-center">ZUBIRI MANTEO</h2>
+        </div>
+      </div>
+    </body>
+</html>
