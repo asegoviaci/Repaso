@@ -1,0 +1,486 @@
+composer global require laravel/installer
+laravel new nombre_del_proyecto
+cp .env.example .env
+php artisan key:generate
+php artisan serve
+----------------------------
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+----------------------------
+php artisan make:controller NombreControlador
+php artisan make:model NombreModelo
+php artisan make:migration nombre_de_la_migracion
+php artisan migrate
+php artisan make:controller NombreControlador --resource
+php artisan make:seeder NombreDelSeeder
+php artisan db:seed
+php artisan tinker
+php artisan make:factory NombreDelFactory
+// database/factories/NombreDelFactory.php
+
+use Faker\Generator as Faker;
+
+$factory->define(App\Models\Modelo::class, function (Faker $faker) {
+    return [
+        'campo1' => $faker->word,
+        'campo2' => $faker->paragraph,
+        // ... más campos
+    ];
+});
+php artisan make:seeder NombreDelSeeder
+// database/seeders/NombreDelSeeder.php
+
+use Illuminate\Database\Seeder;
+use App\Models\Modelo;
+
+class NombreDelSeeder extends Seeder
+{
+    public function run()
+    {
+        // Genera 50 registros usando el Factory
+        factory(Modelo::class, 50)->create();
+    }
+}
+php artisan db:seed --class=NombreDelSeeder
+----------------------------
+Route::get('/', function () {
+    return view('layout.layout');
+});
+
+Route::get('/usuario', [UsuarioController::class, 'view'])->name('usuario.crear');
+Route::post('/usuario', [UsuarioController::class, 'add'])->name('usuario.crear');
+Route::delete('/usuario/{id}', [UsuarioController::class, 'delete'])->name('usuario.delete');
+Route::get('/usuario/edit/{id}', [UsuarioController::class, 'edit'])->name('usuario.edit');
+Route::put('/usuario/actualizar/{id}', [UsuarioController::class, 'update'])->name('usuario.update');
+
+Route::get('/direccion', [DireccionController::class, 'view'])->name('direccion.crear');
+Route::post('/direccion', [DireccionController::class, 'add'])->name('direccion.crear');
+Route::delete('/direccion/{id}',[DireccionController::class, 'delete'])->name('direccion.delete');
+Route::get('/direccion/edit/{id}', [DireccionController::class, 'edit'])->name('direccion.edit');
+Route::put('/direccion/actualizar/{id}', [DireccionController::class, 'update'])->name('direccion.update');
+
+Route::get('/asignar', [DireccionController::class, 'asignarView'])->name('direccion.asignar');
+Route::post('/asignar',[DireccionController::class, 'asignar'])->name('direccion.asignar');
+
+Route::get('/post', [PostController::class, 'view'])->name('post.crear');
+Route::post('/post', [PostController::class, 'create'])->name('post.crear');
+Route::delete('/post/{id}', [PostController::class, 'delete'])->name('post.delete');
+Route::get('/post/edit/{id}',[PostController::class, 'edit'])->name('post.edit');
+Route::put('/post/actualizar/{id}', [PostController::class, 'update'])->name('post.update');
+
+Route::get('/tema', [TemaController::class, 'index'])->name('tema.crear');
+Route::post('/tema', [TemaController::class, 'store'])->name('tema.crear');
+Route::delete('/tema/{id}', [TemaController::class, 'destroy'])->name('tema.destroy');
+Route::get('/tema/edit/{id}', [TemaController::class, 'edit'])->name('tema.edit');
+Route::put('/tema/actualizar/{id}', [TemaController::class, 'update'])->name('tema.update');
+
+Route::get('/api/posts/recent', [ApiController::class, 'getPost']);
+Route::get('/api/posts/{id}', [ApiController::class, 'getPostByUsuario']);
+----------------------------
+public function definition(): array
+    {
+        return [
+            'nombre' => $this->faker->firstname(),
+            'email' => $this->faker->email(),
+            'fecha_nacimiento' => $this->faker->date(),
+            'genero' => $this->faker->randomElement(['Masculino', 'Femenino', 'Otros']),
+        ];
+    }
+public function run(): void
+    {
+        Usuario::factory(5)->create();
+    }
+----------------------------
+public function up()
+    {
+        Schema::create('post_tema', function (Blueprint $table) {
+            
+            $table->unsignedBigInteger('post_id');
+            $table->unsignedBigInteger('tema_id');
+            
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+            $table->foreign('tema_id')->references('id')->on('temas')->onDelete('cascade');
+            
+            $table->primary(['post_id', 'tema_id']);
+            $table->timestamps();
+        });
+    }
+----------------------------
+class Usuario extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nombre',
+        'edad',
+        'email',
+        'fecha_nacimiento',
+        'genero',
+        'direccion_id',
+    ];
+    //belongsTo para definir el inverso de la relacion hasOne
+    //Uno a Uno
+    public function direccion(){
+        return $this->belongsTo(Direccion::class);
+    }
+    //hasMany porque un usuario puede tener muchos posts
+    //Uno a Muchos
+    public function posts(){
+        return $this->hasMany(Post::class);
+    }
+}
+----------------------------
+class Direccion extends Model
+{
+    use HasFactory;
+
+    protected $table = 'direcciones';// para especificar la tabla direcciones ya que laravel lo considera como "Direccions"
+    protected $fillable=[
+        'calle',
+        'numero_portal',
+        'codigo_postal',
+        'ciudad',
+        'usuario_id',
+    ];
+    //hasOne porque un usuario puede tener solo una direccion
+    //Uno a Uno
+    public function usuarios(){
+        return $this->hasOne(Usuario::class);
+    }
+
+}
+----------------------------
+public function getPost()
+    {
+        $posts = Post::orderBy('created_at', 'desc')->take(12)->get();
+        return response()->json($posts);
+    }
+
+    public function getPostByUsuario($id)
+    {
+        $posts = Post::where('usuario_id', $id)->orderBy('titulo', 'asc') ->get();
+        return response()->json($posts);
+    }
+----------------------------
+public function view(){
+        $direccion = Direccion::all();
+        return view('direccion.crear')->with('direccion', $direccion);
+    }
+
+    public function add(Request $request){
+        Direccion::create($request->all());
+        return redirect()->route('direccion.crear');
+    }
+
+    public function delete($id){
+        $direccion = Direccion::find($id);
+        $direccion->delete();
+        return redirect()->route('direccion.crear');
+    }
+
+    public function edit($id){
+        $direccion = Direccion::find($id);
+        return view('direccion.edit')->with('direccion', $direccion);
+    }
+
+    public function update(Request $request, $id){
+        $direccion = Direccion::find($id);
+        $direccion->update($request->all());
+        return redirect()->route('direccion.crear');
+    }
+
+    public function asignarView(){
+        $direccion = Direccion::all();
+        $usuario = Usuario::all();
+        return view('direccion.asignar')->with('direccion', $direccion) ->with('usuario', $usuario);
+    }
+
+    public function asignar(Request $request){
+        $usuario = Usuario::find($request->input('usuario'));
+
+        $direccion = Direccion::find($request->input('direccion'));
+        $direccion->usuario_id = $usuario->id;
+        $direccion->save();
+        
+        return redirect()->route('direccion.asignar');
+    }
+----------------------------
+public function view(){
+        $usuario = Usuario::all();
+        $usuariosConPosts = Usuario::has('posts')->get();
+        $temas = Tema::all();
+        $post = Post::all();
+        return view('post.crear')->with('usuario', $usuario) ->with('usuariosConPosts', $usuariosConPosts) ->with('post', $post) ->with('temas', $temas);
+    }
+
+    public function create(Request $request){
+        $post = Post::create($request->all());
+        $usuario = Usuario::find($request->usuario_id);
+        $post->usuario()->associate($usuario);
+        $post->temas()->sync($request->temas);
+        $post->save();
+
+        return redirect()->route('post.crear');
+    }
+
+    public function delete($id){
+        $post = Post::find($id);
+        $post->delete();
+        return redirect()->route('post.crear');
+    }
+
+    public function edit($id){
+        $post = Post::find($id);
+        $usuario = Usuario::all();
+        return view('post.edit')->with('post', $post) ->with('usuario', $usuario);
+    }
+
+    public function update(Request $request, $id){
+        $post = Post::find($id);
+        $post->update($request->all());
+        return redirect()->route('post.crear');
+    }
+----------------------------
+public function index()
+    {
+        $tema = Tema::all();
+        return view("tema.crear")->with('tema', $tema);
+    }
+    public function create()
+    {
+        
+    }
+    public function store(Request $request)
+    {
+        $tema = Tema::create($request->all());
+        return redirect()->route('tema.crear');
+    }
+    public function show(Tema $tema)
+    {
+        //
+    }
+    public function edit($id)
+    {
+        $tema = Tema::find($id);
+        return view('tema.edit')->with('tema', $tema);
+    }
+    public function update(Request $request, $id)
+    {
+        $tema = Tema::find($id);
+        $tema->update($request->all());
+        return redirect()->route('tema.crear');
+    }
+    public function destroy($id)
+    {
+        $tema = Tema::find($id);
+        $tema->delete();
+        return redirect()->route('tema.crear');
+    }
+----------------------------
+public function view(){
+        $usuarios = Usuario::all();
+        return view('usuario.crear')->with('usuarios', $usuarios);
+    }
+
+    public function add(Request $request){
+
+        $validacion = $request->validate([
+            'nombre' => 'required|string',
+            'edad' => 'required|integer|min:0',
+            'email' => 'required|email|unique:usuarios,email',
+            'fecha_nacimiento' => 'required|date',
+            'genero' => 'required|in:Masculino,Femenino,Otros',
+        ]);
+        
+        Usuario::create($request->all());
+        return redirect()->route('usuario.crear');
+    }
+
+    public function delete($id){
+        $usuario = Usuario::find($id);
+        $usuario->delete();
+        return redirect()->route('usuario.crear');
+    }
+
+    public function edit($id){
+        $usuario = Usuario::all();
+        $usuario = Usuario::find($id);
+        return view('usuario.edit')->with('usuario', $usuario);
+    }
+
+    public function update(Request $request, $id){
+        $usuario = Usuario::find($id);
+        $usuario->update($request->all());
+        return redirect()->route('usuario.crear');
+    }
+----------------------------
+@extends('layout.layout')
+@section('content')
+    <h1>Asignar direccion a usuario</h1>
+
+    <form action="/asignar" method="post">
+        @csrf
+        <label for="">Seleccionar usuario</label>
+        <select name="usuario" id="">
+            @foreach($usuario as $u)
+                <option value="{{ $u->id}}">{{$u->nombre}}</option>
+            @endforeach
+        </select>
+
+        <label for="">Seleccionar dirección</label>
+        <select name="direccion" id="">
+            @foreach($direccion as $d)
+                <option value="{{$d->id}}">{{ $d->calle }} {{ $d->numero_portal}} {{$d->ciudad}}</option>
+            @endforeach
+        </select>
+        <button type="submit">Update</button>
+    </form>
+@endsection
+----------------------------
+@extends('layout.layout')
+@section('content')
+    <h1>Crear direcciones</h1>
+    <form action="/direccion" method="post">
+        @csrf
+        <label for="">Calle: </label>
+        <input type="text" name="calle"><br><br>
+        <label for="">Nº calle / Portal: </label>
+        <input type="text" name="numero_portal"><br><br>
+        <label for="">Codigo postal: </label>
+        <input type="text" name="codigo_postal"><br><br>
+        <label for="">Ciudad: </label>
+        <input type="text" name="ciudad"><br><br>
+        <button type="submit">Crear direccion</button>
+    </form>
+
+    <h1>Lista de Direcciones</h1>
+    <table border="1">
+        <tr>
+            <th>Calle</th>
+            <th>Nº calle / Portal</th>
+            <th>Código postal</th>
+            <th>Ciudad</th>
+            <th></th>
+        </tr>
+        @foreach($direccion as $d)
+        <tr>
+            <td>{{ $d->calle }}</td>
+            <td>{{ $d->numero_portal }}</td>
+            <td>{{ $d->codigo_postal }}</td>
+            <td>{{ $d->ciudad }}</td>
+            <td>
+                <form action="/direccion/{{ $d->id }}" method="post">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit">Eliminar</button>
+                    <button><a href="/direccion/edit/{{ $d->id }}">Editar</a></button>
+                </form>
+            </td>
+        </tr>
+        @endforeach
+    </table>
+@endsection
+----------------------------
+@extends('layout.layout')
+@section('content')
+    <h1>Editar direccion</h1>
+    <form action="/direccion/actualizar/{{ $direccion->id }}" method="post">
+        @csrf
+        @method('PUT')
+        <label for="">Calle: </label>
+        <input type="text" name="calle" value="{{ $direccion->calle }}"><br><br>
+        <label for="">Nº calle / Portal: </label>
+        <input type="text" name="numero_portal" value="{{ $direccion->numero_portal }}"><br><br>
+        <label for="">Codigo postal: </label>
+        <input type="text" name="codigo_postal" value="{{ $direccion->codigo_postal }}"><br><br>
+        <label for="">Ciudad: </label>
+        <input type="text" name="ciudad" value="{{ $direccion->ciudad }}"><br><br>
+        <button type="submit">Actualizar</button>
+    </form>
+@endsection
+----------------------------
+$validatedData = $request->validate([
+ 'title' => 'required|unique:posts|max:255',
+ 'body' => 'required',
+]);
+----------------------------
+$reglas = [
+            'nombre' => 'required|string|max:255',
+            'correo' => 'required|email|unique:users|max:255',
+            // Agrega más reglas según tus necesidades
+        ];
+
+        $mensajes = [
+            'nombre.required' => 'El campo nombre es obligatorio.',
+            'correo.required' => 'El campo correo es obligatorio.',
+            // Agrega más mensajes según tus necesidades
+        ];
+
+        $request->validate($reglas, $mensajes);
+----------------------------
+@error('nombre')
+<div class="alert alert-danger">{{ $message }}</div>
+@enderror
+----------------------------
+composer require laravel/breeze --dev
+php artisan breeze:install
+npm install && npm run dev
+----------------------------
+$user = auth()->user();
+if (auth()->check()) {
+    // El usuario está autenticado
+}
+if (auth()->guest()) {
+    // El usuario no está autenticado
+}
+$userId = auth()->id();
+auth()->logout();
+----------------------------
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+
+// Ruta para el formulario de inicio de sesión (login)
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->middleware('guest')
+    ->name('login');
+
+// Ruta para procesar el inicio de sesión
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware('guest');
+
+// Ruta para el formulario de registro
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->middleware('guest')
+    ->name('register');
+
+// Ruta para procesar el registro
+Route::post('/register', [RegisteredUserController::class, 'store'])
+    ->middleware('guest');
+----------------------------
+Gate::define('editar-post', function ($user, $post) {
+            return $user->id === $post->user_id;
+        });
+----------------------------
+public function editarPost($postId)
+{
+    $post = Post::findOrFail($postId);
+
+    if (Gate::allows('editar-post', $post)) {
+        // El usuario tiene permiso para editar el post
+        // Tu lógica de edición aquí...
+        return view('posts.edit', compact('post'));
+    } else {
+        // El usuario no tiene permiso, puedes redirigir o mostrar un error
+        return redirect()->route('dashboard')->with('error', 'No tienes permiso para editar este post.');
+    }
+}
+----------------------------
+@can('editar-post', $post)
+    {{-- Muestra el enlace de edición --}}
+    <a href="{{ route('editar-post', ['postId' => $post->id]) }}">Editar</a>
+@endcan
+
+----------------------------

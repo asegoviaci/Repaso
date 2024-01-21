@@ -1,0 +1,65 @@
+apt-get install mysql-server
+apt-get install mysql-client
+----------------------------
+sudo cat /etc/mysql/debian.cnf 
+sudo mysql
+CREATE USER 'nombre'@'red' IDENTIFIED BY 'contraseña';
+localhost/10.14.0.1/%
+-u usuario
+-p password
+-h ip
+----------------------------
+Create ROLE rol:
+GRANT CREATE, SELECT, INSERT ON *.* TO rol:
+GRANT ALL pRIVILEGES ON *.* TO rol:
+GRANT rol to 'nombre'@'red':
+----------------------------
+FLUSH PRIVILEGES
+sudo scp -P 22333 -r /home/zubiri/Escritorio/universe.sql zubiri@10.14.4.169:~/
+SOURCE universe.sql;
+mysql -u zubiri -p > /home/zubiri/universe.sql 
+REVOKE DELETE ON universe.* FROM 'asegoviaci_network'@'%';
+----------------------------
+sudo ss -ltnp | grep 3306
+bind-address = 127.0.0.1
+----------------------------
+SELECT * FROM planets WHERE climate = 'arid';
+INSERT INTO people(name, height, mass, hair_color,
+skin_color, eye_color, birth_year, gender, planet_id, created_date,
+updated_date, url, id) VALUES ('Biggs Darklighter', '183', '84', 'black',
+'light', 'brown', '24BBY', 'male', 1, '2014-12-10 15:59:50', '2014-12-20
+21:17:50', 'https://swapi.co/api/people/9/', 90);
+DELETE FROM universe.people WHERE id = 1;
+mysql.user
+SELECT User, Host, Select_priv, Insert_priv, Update_priv,
+Delete_priv, Create_priv FROM mysql.user;
+----------------------------
+sudo apt-get install libapache2-mod-php
+sudo apt-get install php-mysql
+----------------------------
+<?php
+$servername = "localhost";
+$username = "asegoviaci_network";
+$password = "zubiri";
+$dbname = "universe";
+// Crear conexión
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Verificar la conexión
+if ($conn->connect_error) {
+die("Conexión fallida: " . $conn->connect_error);
+}
+// Consulta SQL para obtener datos
+$sql = "SELECT * FROM planet";
+$result = $conn->query($sql);
+// Mostrar datos
+if ($result->num_rows > 0) {
+while($row = $result->fetch_assoc()) {
+echo "Campo1: " . $row["name"]. " - Campo2: " .
+$row["diameter"]. "<br>";
+}
+} else {
+echo "0 resultados";
+}
+// Cerrar conexión
+$conn->close();
+?>
