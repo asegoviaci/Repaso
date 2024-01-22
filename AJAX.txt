@@ -1,0 +1,168 @@
+window.onload = inicio;
+
+let xhr;
+let datos;
+
+// inicialización (1 punto)
+function inicio() {
+    cargaDatos()
+}
+
+// carga de datos desde servidor local (1 puntos)
+function cargaDatos() {
+    xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if ( xhr.readyState == 4 && xhr.status == 200 ) {
+            let doc = JSON.parse(xhr.responseText);
+            datos = doc.item;
+    
+            let provincia = document.getElementById("provincia");
+            provincia.addEventListener("change", cargaMunicipios);
+    
+            for (let i = 0; i < datos.length; i++) {
+                let option = document.createElement("option");
+                option.textContent = datos[i].territory;
+                option.value = datos[i].territory;
+    
+                provincia.appendChild(option);
+            }
+        }
+    }
+    xhr.open("GET",'../server/restaurantes.json',true);
+    xhr.send();
+}
+
+// explotación de datos recibidos (1 punto)
+function cargaMunicipios(event) {
+
+    let municipio = document.getElementById("municipio");
+    municipio.addEventListener("change", cargaRetaurantes);
+
+    for (let i = 0; i < datos.length; i++) {
+        if (datos[i].territory == event.target.value) {
+            let option = document.createElement("option");
+            option.textContent = datos[i].municipality;
+            option.value = datos[i].municipality;
+
+            municipio.appendChild(option);
+        }
+    }
+}
+
+// explotación de datos recibidos (1 punto)
+function cargaRetaurantes(event) {
+    let restaurantes = document.getElementById("restaurantes")
+    restaurantes.addEventListener("change", cargaInformacion)
+
+    for (let i = 0; i < datos.length; i++) {
+        if (datos[i].municipality == event.target.value) {
+            let option = document.createElement("option");
+            option.textContent = datos[i].documentName;
+            option.value = datos[i].documentName;
+
+            restaurantes.appendChild(option);
+        }
+    }
+}
+
+// explotación de datos recibidos (1 punto)
+function cargaInformacion(event) {
+
+    for (let i = 0; i < datos.length; i++) {
+        if (datos[i].documentName == event.target.value) {
+
+            document.formulario_info.nombre.value = datos[i].documentName;
+            document.formulario_info.direccion.value = datos[i].address;
+            document.formulario_info.localidad.value = datos[i].locality;
+            document.formulario_info.email.value = datos[i].email;
+            document.formulario_info.telefono.value = datos[i].phone;
+            document.formulario_info.web.value = datos[i].web;
+            document.formulario_info.tipo.value = datos[i].restorationType;
+            document.formulario_info.capacidad.value = datos[i].capacity;
+            document.formulario_info.web_euskadi.value = datos[i].friendlyUrl;
+            document.formulario_info.descripcion.value = datos[i].turismDescription;
+        }
+    }
+}
+====================================================================================
+====================================================================================
+window.onload = inicio
+
+let http
+let cargar
+let predi
+let idioma
+
+// inicialización (0,5 punto)
+function inicio (){
+    cargar = document.getElementById("cargar")
+    cargar.addEventListener("click", cargaForecast)
+    let mostrar = document.getElementById("mostrar")
+    mostrar.addEventListener("click",muestra_esconde)
+}
+
+// carga de datos desde servidor local (1 puntos)
+function cargaForecast() {
+    http = new XMLHttpRequest()
+    http.onreadystatechange = function() {
+        if ( http.readyState == 4 && http.status == 200 ) {
+            let doc = http.responseXML
+            let raiz = doc.getElementsByTagName("forecasts")[0]
+            predi = raiz.getElementsByTagName("forecast")
+            for (let i = 0; i < predi.length; i++) {
+                let boton = document.createElement("input")
+                boton.type = "button"
+                boton.value = predi[i].getElementsByTagName("fecha")
+                boton.addEventListener("click",muestraForecast)
+                document.getElementById("label_fecha").appendchild(boton)
+            }
+        }
+    }
+    http.open("GET",'../server/sea_forecast.xml',true);
+    http.send(null)
+}
+
+// explotación de datos recibidos (1,5 punto)
+function muestraForecast(event) {
+
+    let textArea = document.getElementById("prevision_meteo")
+
+    for (let i = 0; i < predi.length; i++) {
+        let date = predi[i].getElementsByTagName("fecha")
+        if (date == event.target.value) {
+            textArea.textContent = predi[i].getElementsByTagName("synopticalDescription")
+            infoForecast(i)
+        }
+    }
+
+}
+
+// explotación de datos recibidos (1,5 punto)
+function infoForecast (i) {
+    let tiempo = document.getElementById("tiempo")
+    let viento = document.getElementById("viento")
+    let luna = document.getElementById("luna")
+    let olas = document.getElementById("olas")
+
+    let weather = predi[i].getElementsByTagName("weather")
+    let moon = predi[i].getElementsByTagName("moon")
+    let ocean = predi[i].getElementsByTagName("ocean")
+    
+    tiempo.src = "../images"+weather.getElementsByTagName("weatherIcon")
+    viento.src = "../images"+weather.getElementsByTagName("windIcon")
+    luna.src = "../images"+moon.getElementsByTagName("moonPhaseIcon")
+    olas.src = "../images"+ocean.getElementsByTagName("waveIcon")
+}
+
+// visibilidad apartado información (0,5 punto)
+function muestra_esconde() {
+    let oculto = document.getElementById("adicional")
+
+    if (oculto.className == "oculto") {
+        oculto.className = "visible"
+    } else {
+        oculto.className = "oculto"
+    }
+}
+====================================================================================
+====================================================================================

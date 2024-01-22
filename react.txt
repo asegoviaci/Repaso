@@ -1,0 +1,223 @@
+npx create-react-app nombre-de-tu-proyecto
+====================================================================================
+====================================================================================
+import './App.css';
+import C_Header from './Components/C_Header';
+import C_Main from './Components/C_Main'
+function App() {
+  return (
+    <div className="App">
+      <C_Header/>
+      <C_Main/>
+    </div>
+  );
+}
+export default App;
+====================================================================================
+====================================================================================
+import React from "react";
+import C_Titulo from './C_Titulo';
+import C_Nombre from './C_Nombre';
+
+const C_Header = () => (
+  <div>
+    <C_Titulo />
+    <C_Nombre nombre="Ametz Segovia Cincunegui" />
+  </div>
+);
+export default C_Header;
+====================================================================================
+====================================================================================
+import React from "react";
+function Titulo(){
+    return(
+        <div>
+            <h1>Espacios naturales y playas de Euskadi</h1>
+        </div>
+    );
+}
+export default Titulo;
+====================================================================================
+====================================================================================
+import React, { useEffect, useState } from "react";
+import C_Provincia from "./Main/C_Provincia";
+import C_Municipios from "./Main/C_Municipios";
+
+function C_Main() {
+    const [xhr] = useState(new XMLHttpRequest());
+    const [data, setData] = useState(null);
+    const [selectedProvincia, setSelectedProvincia] = useState(null);
+
+    useEffect(() => {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                setData(JSON.parse(xhr.responseText));
+                console.log(xhr.responseText);
+            }
+        };
+
+        xhr.open("GET", "http://localhost/espacios_naturales_euskadi/src/espacios.php", true);
+        xhr.send();
+    }, []);
+
+    return (
+        <div>
+            <C_Provincia onProvinciaChange={setSelectedProvincia} />
+            <C_Municipios dato={data} selectedProvincia={selectedProvincia} />
+        </div>
+    );
+}
+export default C_Main;
+====================================================================================
+====================================================================================
+import React, { useState } from "react";
+
+function C_Provincia({ onProvinciaChange }) {
+  const [selectedProvincia, setSelectedProvincia] = useState(null);
+  function actualizarProvincia(event) {
+    const selectedProvincia = event.target.value;
+    setSelectedProvincia(selectedProvincia);
+    onProvinciaChange(selectedProvincia);
+  }
+    return (
+        <div>
+            <h1>Provincias</h1>
+            <label>
+                <input type="radio" name="provincia" value="Araba/Álava" onChange={actualizarProvincia} />
+                Araba/Álava
+            </label>
+            <label>
+                <input type="radio" name="provincia" value="Bizkaia" onChange={actualizarProvincia} />
+                Bizkaia
+            </label>
+            <label>
+                <input type="radio" name="provincia" value="Gipuzkoa" onChange={actualizarProvincia} />
+                Gipuzkoa
+            </label>
+        </div>
+    );
+}
+export default C_Provincia;
+====================================================================================
+====================================================================================
+import React, { useEffect, useState } from "react";
+import C_Informacion from "./C_Informacion";
+
+function C_Municipios({ dato, selectedProvincia }) {
+    const [selectedMunicipio, setSelectedMunicipio] = useState("");
+    const [selectedEntorno, setSelectedEntorno] = useState("");
+
+    useEffect(() => {
+        cargarMunicipio();
+    }, [selectedProvincia, dato]);
+
+    useEffect(() => {
+        cargarEntorno();
+    }, [selectedMunicipio, dato]);
+
+
+    function cargarMunicipio() {
+
+        if (!dato) {
+            return;
+        }
+    
+        const municipioSelect = document.getElementById("municipios");
+    
+        const municipios = [];
+    
+        for (let i = 0; i < dato.item.length; i++) {
+            if (dato.item[i].territory === selectedProvincia && !municipios.includes(dato.item[i].municipality)
+            ) {
+                municipios.push(dato.item[i].municipality);
+            }
+        }
+    
+        municipios.forEach((municipio) => {
+            const option = document.createElement("option");
+            option.textContent = municipio;
+            municipioSelect.appendChild(option);
+            municipioSelect.addEventListener("change", (event) => {
+                setSelectedMunicipio(event.target.value);
+            });
+        });
+    }
+    
+
+    function cargarEntorno() {
+        const entornoSelect = document.getElementById("entorno");
+        entornoSelect.innerHTML = "";
+
+        if (!dato) {
+            return;
+        }
+
+        for (let i = 0; i < dato.item.length; i++) {
+            if (dato.item[i].territory === selectedProvincia && dato.item[i].municipality === selectedMunicipio) {
+                const option = document.createElement("option");
+                option.textContent = dato.item[i].documentName;
+                entornoSelect.appendChild(option);
+            }
+        }
+
+        entornoSelect.addEventListener('change', (event) => {
+            const selectedDocumentName = event.target.value;
+        
+            const selectedEntornoData = dato.item.find((item) => (
+                item.territory === selectedProvincia &&
+                item.municipality === selectedMunicipio &&
+                item.documentName === selectedDocumentName
+            ));
+        
+            setSelectedEntorno(selectedEntornoData);
+        });
+        
+    }
+
+    return (
+        <div>
+            <label>
+                Municipio:
+                <select id="municipios">
+                    <option></option>
+                </select>
+            </label>
+            <label>
+                Entorno:
+                <select id="entorno">
+                    <option></option>
+                </select>
+            </label>
+            <C_Informacion selectedEntorno={selectedEntorno} />
+        </div>
+    );
+}
+
+export default C_Municipios;
+====================================================================================
+====================================================================================
+import React from "react";
+
+function C_Informacion({ selectedEntorno }) {
+
+    return (
+        <div>
+            <h1>Información del local seleccionado</h1>
+            <label>Nombre:</label>
+            <input type="text" value={selectedEntorno.documentName} readOnly />
+            <label>Localidad:</label>
+            <input type="text" value={selectedEntorno.municipality} readOnly />
+            <h1>Información adicional</h1>
+            <label>Tipo:</label>
+            <input type="text" value={selectedEntorno.templateType} readOnly /><br /><br />
+            <label>Turismo euskadi:</label>
+            <input type="text" id="web" value={selectedEntorno.friendlyUrl} readOnly /><br /><br />
+            <label>Descripcion:</label>
+            <textarea id="texto" value={selectedEntorno.turismDescription} readOnly></textarea>
+        </div>
+    );
+}
+
+export default C_Informacion;
+====================================================================================
+====================================================================================
