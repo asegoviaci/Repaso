@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind_4.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-pink-300 to-green-300 min-h-screen">
+    <div class="flex flex-col min-h-screen h-screen container mx-auto mt-8 mb-8 overflow-y-auto">
+            <nav>
+                <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+                <a href="index.html" class="flex items-center">
+                    <img src="image/252.png" class="h-8 mr-3" alt="Logo" />
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Floristeria Treecko</span>
+                </a>
+                <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+                    <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0">
+                    <li>
+                        <a href="index.html" class="block py-2 pl-3 pr-4 text-white bg-white rounded md:bg-transparent md:text-pink-300 md:p-0 dark:text-white md:dark:text-pink-300" aria-current="page">Home</a>
+                    </li>
+                    <li>
+                        <a href="about.html" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">About</a>
+                    </li>
+                    <li>
+                        <a href="services.html" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Services</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Pricing</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gradient-to-r from-green-300 to-pink-300 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact</a>
+                    </li>
+                    </ul>
+                </div>
+                <div class="md:hidden w-full md:block md:w-auto" id="mobile-menu">
+                    <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0" >
+                    <li>
+                        <a href="index.html" class="block py-2 pl-3 pr-4 text-white bg-gradient-to-r from-green-300 to-pink-300 rounded md:bg-transparent md:text-pink-300 md:p-0 dark:text-white md:dark:text-pink-300" aria-current="page">Home</a>
+                    </li>
+                    <li>
+                        <a href="about.html" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gradient-to-r from-green-300 to-pink-300 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">About</a>
+                    </li>
+                    <li>
+                        <a href="services.html" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gradient-to-r from-green-300 to-pink-300 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Services</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gradient-to-r from-green-300 to-pink-300 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Pricing</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gradient-to-r from-green-300 to-pink-300 md:hover:bg-transparent md:border-0 md:hover:text-pink-300 md:p-0 dark:text-white md:dark:hover:text-pink-300 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact</a>
+                    </li>
+                    </ul>
+                </div>
+                </div>
+            </nav>
+            <div class="flex-grow flex flex-col md:flex-row text-center">
+                <div class="w-full p-2">
+                    <form action="#" class="max-w-md mx-auto mt-8 p-6 bg-white bg-opacity-30 rounded-lg shadow-md border border-white">
+                        <div class="mb-4">
+                          <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+                          <input type="text" name="nombre" class="w-full border border-gray-300 p-2 rounded-md">
+                        </div>
+                        <div class="mb-4">
+                          <label for="apellido" class="block text-gray-700 text-sm font-bold mb-2">Apellido:</label>
+                          <input type="text" name="apellido" class="w-full border border-gray-300 p-2 rounded-md">
+                        </div>
+                        <div class="mb-4">
+                          <label for="correo" class="block text-gray-700 text-sm font-bold mb-2">Correo:</label>
+                          <input type="text" name="correo" class="w-full border border-gray-300 p-2 rounded-md">
+                        </div>
+                        <div class="mb-4">
+                          <label for="imagen" class="block text-gray-700 text-sm font-bold mb-2">Selecciona una imagen:</label>
+                          <select class="w-full border border-gray-300 p-2 rounded-md">
+                            <option value="1">Imagen 1</option>
+                            <option value="2">Imagen 2</option>
+                            <option value="3">Imagen 3</option>
+                            <option value="4">Imagen 4</option>
+                            <option value="5">Imagen 5</option>
+                            <option value="5">Imagen 5</option>
+                          </select>
+                        </div>
+                        <div class="w-full h-2 bg-white mb-4">
+                            <div class="h-full w-1/5 bg-green-500"></div>
+                          </div>
+                        <button type="submit" class="w-full bg-pink-500 text-white p-2 rounded-md hover:bg-green-500 focus:outline-none focus:shadow-outline-blue active:bg-green-800">Enviar</button><br><br>
+                        <button type="submit" class="w-full bg-pink-500 text-white p-2 rounded-md hover:bg-green-500 focus:outline-none focus:shadow-outline-blue active:bg-green-800">Limpiar</button>
+                      </form>
+                </div>
+                <div class="w-full p-2 mb-8">
+                    <div class="max-w-md mx-auto mt-8 p-6 bg-white bg-opacity-30 rounded-lg shadow-md border border-white">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="relative overflow-hidden group">
+                                <img src="image/image1.jpg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 1</p>
+                                </div>
+                              </div>
+                              <div class="relative overflow-hidden group">
+                                <img src="image/image2.jpg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 2</p>
+                                </div>
+                              </div>
+                              <div class="relative overflow-hidden group">
+                                <img src="image/image3.jpg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 3</p>
+                                </div>
+                              </div>
+                              <div class="relative overflow-hidden group">
+                                <img src="image/image4.jpeg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 4</p>
+                                </div>
+                              </div>
+                              <div class="relative overflow-hidden group">
+                                <img src="image/image5.jpeg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 5</p>
+                                </div>
+                              </div>
+                              <div class="relative overflow-hidden group">
+                                <img src="image/image6.jpg" alt="Imagen 1" class="w-full h-full object-cover rounded-md">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                                  <p class="text-white font-bold">Imagen 6</p>
+                                </div>
+                              </div>
+                        </div>
+                      </div>
+                </div>
+              </div> 
+      </div>
+      <footer class="text-white p-4 bg-gray-900 mt-8">
+        <div class="container  mx-auto text-center">
+            <p>&copy; 2023 Floristeria Treecko.</p>
+        </div>
+    </footer>
+</body>
+</html>
