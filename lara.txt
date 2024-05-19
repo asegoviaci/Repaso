@@ -1,0 +1,367 @@
+laravel new miProyecto
+cd myProject
+git init
+git add .
+git commit -m "Commit Inicial"
+------------------------------
+composer global require laravel/installer
+laravel new nombre_del_proyecto
+cp .env.example .env
+php artisan key:generate
+php artisan serve
+----------------------------
+composer install
+composer require laravel/breeze --dev
+php artisan breeze:install inertia
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+------------------------------
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_base_de_datos
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+------------------------------
+use App\Http\Controllers\TareaController;
+Route::get('/', [TareaController::class, 'index']);
+Route::post('/tarea', [TareaController::class, 'store']);
+Route::delete('/tarea/{id}', [TareaController::class, 'destroy']);
+Route::get('/task', [TareaController::class, 'showTaskForm']);
+Route::get('/list', [TareaController::class, 'showList']);
+Route::get('/search', [TareaController::class, 'search']);
+------------------------------
+class TareaController extends Controller
+{
+    public function index()
+    {
+        $tareas = Tarea::all();
+        return view('tareas.index')->with('tareas', $tareas);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string',
+            'descripcion' => 'required|string',
+        ],[
+            'nombre.required' => 'El campo nombre es obligatorio.',
+            'descripcion.required' => 'El campo descripción es obligatorio.',
+            'descripcion.string' => 'El campo descripción debe ser una cadena.',
+        ]);
+
+        Tarea::create($request->all());
+
+        return redirect('/');
+    }
+
+    public function destroy($id)
+    {
+        Tarea::destroy($id);
+
+        return redirect('/');
+    }
+
+    public function showTaskForm()
+    {
+        return view('tareas.task_form');
+    }
+
+    public function showList()
+    {
+        $tareas = Tarea::all();
+        return view('tareas.List')->with('tareas', $tareas);
+    }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('search');
+        $tareas = Tarea::where('nombre', 'like', '%' . $searchTerm . '%')->get();
+
+        return view('tareas.search')->with('tareas', $tareas);
+    }
+}
+------------------------------
+<html>
+<head>
+    <title>Lista de Tareas</title>
+    <!-- En la carpeta public/ccs tengo la parte de css -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Menu</button>
+            <div class="dropdown-content">
+                <a href="/">Inicio</a>
+                <a href="/list">Lista Tareas</a>
+                <a href="/task">Nueva Tarea</a>
+                <a href="/search">Buscar</a>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        @yield('content')
+    </div>
+</body>
+</html>
+------------------------------
+@extends('layout')
+
+@section('content')
+    <h1>Lista de Tareas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @each('partials.delete_button', $tareas, 'tarea')
+        </tbody>
+    </table>
+@endsection
+------------------------------
+php artisan make:factory UserFactory --model=User
+php artisan make:seeder UsersTableSeeder
+php artisan db:seed
+------------------------------
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class UserFactory extends Factory
+{
+    protected $model = User::class;
+
+    public function definition()
+    {
+        return [
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'), // contraseña encriptada
+            'remember_token' => Str::random(10),
+        ];
+    }
+}
+------------------------------
+use Illuminate\Database\Seeder;
+use App\Models\User;
+
+class UsersTableSeeder extends Seeder
+{
+    public function run()
+    {
+	DB::table('users')->insert([
+            [
+                'name' => 'John Doe',
+                'email' => 'johndoe@example.com',
+                'email_verified_at' => now(),
+                'password' => bcrypt('password123'), // contraseña encriptada
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]]);
+        // Crear 10 usuarios usando el factory
+        User::factory()->count(10)->create();
+    }
+}
+------------------------------
+database/seeders/DatabaseSeeder.php
+public function run()
+{
+    $this->call(UsersTableSeeder::class);
+}
+------------------------------
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateAuthorsAndBooksTables extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        // Crear la tabla authors
+        Schema::create('authors', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('bio')->nullable();
+            $table->timestamps();
+        });
+
+        // Crear la tabla books
+        Schema::create('books', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('author_id'); // Foreign key
+            $table->string('title');
+            $table->text('summary')->nullable();
+            $table->date('published_at')->nullable();
+            $table->timestamps();
+
+            // Define the foreign key constraint
+            $table->foreign('author_id')->references('id')->on('authors')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('books');
+        Schema::dropIfExists('authors');
+    }
+}
+------------------------------
+class CreateCourseStudentTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('course_student', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('course_id');
+            $table->timestamps();
+
+            // Define the foreign key constraints
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+
+            // Opcional: agrega índices únicos para evitar duplicados
+            $table->unique(['student_id', 'course_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('course_student');
+    }
+}
+------------------------------
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class User extends Model
+{
+    // Especifica el nombre de la tabla si es diferente al nombre del modelo en plural
+    protected $table = 'users';
+    
+    // Permite asignación masiva de estos campos
+    protected $fillable = [
+        'name',
+        'email',
+        'password'
+    ];
+
+    // Relación 1:1 con Address
+    public function address()
+    {
+        return $this->hasOne(Address::class);
+    }
+}
+------------------------------
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Address extends Model
+{
+    // Especifica el nombre de la tabla si es diferente al nombre del modelo en plural
+    protected $table = 'addresses';
+
+    // Permite asignación masiva de estos campos
+    protected $fillable = [
+        'user_id',
+        'street',
+        'city'
+    ];
+
+    // Relación inversa 1:1 con User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+------------------------------
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Author extends Model
+{
+    // Especifica el nombre de la tabla si es diferente al nombre del modelo en plural
+    protected $table = 'authors';
+    
+    // Permite asignación masiva de estos campos
+    protected $fillable = [
+        'name',
+        'bio'
+    ];
+
+    // Relación 1:N con Book
+    public function books()
+    {
+        return $this->hasMany(Book::class);
+    }
+}
+------------------------------
+class Menu extends Model
+{
+    use HasFactory;
+
+    protected $table = 'menus';
+
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'precio',
+    ];
+
+    public function productos()
+    {
+        return $this->belongsToMany(Producto::class)
+                    ->withPivot('cantidad'); 
+    }
+
+
+    public function pedidos()
+    {
+        return $this->belongsToMany(Pedido::class)->withPivot('cantidad');
+    }
+}
+------------------------------
+AuthServiceProvider
+Gate::define('administrador', function(User $user){
+            return $user->tipo === 'administrador';
+        });
+------------------------------
+@if (Gate::allows('administrador'))
+    <li><a href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+@endif
+------------------------------
+------------------------------
